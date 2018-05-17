@@ -38,13 +38,13 @@ public class DeadSimpleSoloController extends Controller {
         if (sensorModel.getAngleToTrackAxis() < -0.02) { // Negative angles are left angles
             // Girar a la dreta al màxim
             action.steering = -0.5;
-        } else if (sensorModel.getTrackPosition() > 1/15.0) { // Negative distances means "nearer to left edge"
-            action.steering = -0.3;
+        } else if (sensorModel.getTrackPosition() > 1/5.0) { // Negative distances means "nearer to left edge"
+            action.steering = -0.15;
         } else if (sensorModel.getAngleToTrackAxis() > 0.02) { // Positive angles means that we are deviating to the right
             // Gira el màxim a l'esquerra
             action.steering = 0.5;
-        } else if (sensorModel.getTrackPosition() < -1/15.0) { // Positive distances means "nearer to right edge"
-            action.steering = 0.3;
+        } else if (sensorModel.getTrackPosition() < -1/5.0) { // Positive distances means "nearer to right edge"
+            action.steering = 0.15;
         }
 
         action.gear = 1;
