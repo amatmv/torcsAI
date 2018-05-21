@@ -1,0 +1,26 @@
+FUNCTION_BLOCK torcs_rules
+
+VAR_INPUT
+        curva : REAL;
+        voralDret : REAL;
+        voralEsquerra : REAL;
+END_VAR
+
+VAR_OUTPUT
+        girDret : REAL;
+        gir : REAL;
+        acceleracio : REAL;
+END_VAR
+
+FUZZIFY curva
+        TERM aProp := () ;
+        TERM lluny := () ;
+END_FUZZIFY
+
+FUZZIFY voralDret
+        TERM aProp := () ;
+END_FUZZIFY
+
+FUZZIFY voralEsquerra
+        TERM aProp := () ;
+END_FUZZIFY
