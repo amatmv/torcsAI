@@ -28,9 +28,9 @@ FUZZIFY voralDret
 END_FUZZIFY
 
 FUZZIFY voralEsquerra
-        TERM aProp := (0.2, 0)(1,1);
-        TERM mig :=(0.2,0)(0.5,1);
-        TERM lluny :=(0.2,1)(1,0);
+        TERM aProp := (0.0, 0) (0.2,1);
+        TERM mig := (0.2,1)(0.5,1);
+        TERM lluny := (0.2,0)(1,1);
 END_FUZZIFY
 
 FUZZIFY velocitat
@@ -101,7 +101,8 @@ RULEBLOCK No1
         RULE 3 : IF voralDret IS aProp THEN girEsquerre IS molt;
         RULE 4 : IF voralEsquerra IS aProp THEN girDret IS molt;
         RULE 5 : IF rpm IS baixa THEN shiftDown IS yes;
-        RULE 6 : IF rpm IS alta THEN shiftUp IS yes;
+        RULE 6 : IF rpm IS bona THEN shiftUp IS no;
+        RULE 7 : IF rpm IS alta THEN shiftUp IS yes;
 
 END_RULEBLOCK
 

@@ -41,10 +41,11 @@ public class InferenceController extends Controller {
             distEsquerra = 0;
         }
 
+        double rpms = sensorModel.getRPM();
         rules.setVariable("voralDret", distDreta);
         rules.setVariable("voralEsquerra", distEsquerra);
         rules.setVariable("velocitat", sensorModel.getSpeed());
-        rules.setVariable("rpm", sensorModel.getRPM());
+        rules.setVariable("rpm", rpms);
 
         rules.evaluate();
 
@@ -60,9 +61,20 @@ public class InferenceController extends Controller {
 
         action.brake = rules.getVariable("frenar").getValue();
 
-        int shiftDown = (int) rules.getVariable("shiftDown").getValue();
-        action.gear = sensorModel.getGear() + (shiftDown == 1 ? -1 : 1);
-//        action.gear = 1;
+        int currentGear = sensorModel.getGear();
+        if (currentGear == 0)
+            action.gear = 1;
+        else {
+            int shiftUp = (int) rules.getVariable("shiftUp").getValue();
+            if (shiftUp > 0)
+                System.out.println(rpms);
+            if (shiftUp == 1 && currentGear <= 6)
+                action.gear = currentGear+1;
+            else if (shiftUp == 0 && currentGear > 1)
+                action.gear = currentGear-1;
+            else
+                action.gear = currentGear;
+        }
 
         return action;
     }
