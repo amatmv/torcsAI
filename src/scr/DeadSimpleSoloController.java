@@ -1,7 +1,5 @@
 package scr;
-import java.util.*;
-
-import static java.lang.Math.abs;
+import java.util.ArrayList;
 
 
 /**
@@ -70,7 +68,6 @@ public class DeadSimpleSoloController extends Controller {
             _trackAngles.add(meanAngle / meanFactor);
 
         }
-
     }
 
     public void reset() {
@@ -79,14 +76,13 @@ public class DeadSimpleSoloController extends Controller {
 
     public void shutdown() {
         int size = _trackAngles.size();
-
         int j = -1;
         for (int i = 0; i < size; i++) {
             double value = _trackAngles.get(i);
             if (i % 2 == 0)
                 _trackAnglesSummarized.add(++j, value);
             else
-                _trackAnglesSummarized.set(j, (_trackAnglesSummarized.get(j) + value) * 100);
+                _trackAnglesSummarized.set(j, (_trackAnglesSummarized.get(j) + value) * 10);
         }
         System.out.println("tamany vector angles" + size);
         System.out.println("Valors del vector final" + _trackAnglesSummarized.size());

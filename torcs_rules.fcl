@@ -1,26 +1,108 @@
 FUNCTION_BLOCK torcs_rules
-
 VAR_INPUT
         curva : REAL;
-        voralDret : REAL;
         voralEsquerra : REAL;
+        voralDret : REAL;
+        velocitat : REAL;
+        rpm : REAL;
 END_VAR
 
 VAR_OUTPUT
         girDret : REAL;
-        gir : REAL;
+        girEsquerre : REAL;
         acceleracio : REAL;
+        frenar : REAL;
+        shiftUp : REAL;
+        shiftDown : REAL;
 END_VAR
 
 FUZZIFY curva
-        TERM aProp := () ;
-        TERM lluny := () ;
+        TERM aProp := (7.0,0)(30.0,1);
+        TERM lluny := (7.0,1)(30.0,0);
 END_FUZZIFY
 
 FUZZIFY voralDret
-        TERM aProp := () ;
+        TERM aProp := (0.2, 0)(1,1);
+        TERM mig :=(0.2,0)(0.5,1);
+        TERM lluny :=(0.2,1)(1,0);
 END_FUZZIFY
 
 FUZZIFY voralEsquerra
-        TERM aProp := () ;
+        TERM aProp := (0.2, 0)(1,1);
+        TERM mig :=(0.2,0)(0.5,1);
+        TERM lluny :=(0.2,1)(1,0);
 END_FUZZIFY
+
+FUZZIFY velocitat
+        TERM lent := (70,1)(90,0);
+        TERM toreto := (80,0)(120,1);
+END_FUZZIFY
+
+FUZZIFY rpm
+        TERM baixa := trape 0.0 1500.0 2000.0 3000.0;
+        TERM bona := trape 2500.0 3500.0 4000.0 5000.0;
+        TERM alta := trape 4500.0 5500.0 6000.0 7000.0;
+END_FUZZIFY
+
+DEFUZZIFY girDret
+        TERM no := (0.0, 0);
+        TERM poc := (0.0,0) (0.1,1) (0.2,0);
+        TERM mig := (0.2,0) (0.35, 1) (0.5,0);
+        TERM molt := (0.5, 0) (0.75, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+DEFUZZIFY shiftUp
+        TERM no := (0.0, 0);
+        TERM yes := (0.0, 0) (0.5, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+DEFUZZIFY shiftDown
+        TERM no := (0.0, 0);
+        TERM yes := (0.0, 0) (0.5, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+DEFUZZIFY girEsquerre
+        TERM no := (0.0, 0);
+        TERM poc := (0.0,0) (0.1,1) (0.2,0);
+        TERM mig := (0.2,0) (0.35, 1) (0.5,0);
+        TERM molt := (0.5, 0) (0.75, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+DEFUZZIFY acceleracio
+        TERM no := (0.0, 0);
+        TERM gas := (0.0, 0) (0.5, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+DEFUZZIFY frenar
+        TERM no := (0.0, 0);
+        TERM freDeMa := (0.0, 0) (0.5, 1) (1.0, 0);
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+RULEBLOCK No1
+
+        AND : MIN;
+        ACT : MIN;
+        ACCU : MAX;
+
+        RULE 1 : IF curva IS aProp AND acceleracio IS gas THEN frenar IS freDeMa;
+        RULE 2 : IF curva IS lluny OR velocitat IS lent THEN acceleracio IS gas;
+        RULE 3 : IF voralDret IS aProp THEN girEsquerre IS molt;
+        RULE 4 : IF voralEsquerra IS aProp THEN girDret IS molt;
+        RULE 5 : IF rpm IS baixa THEN shiftDown IS yes;
+        RULE 6 : IF rpm IS alta THEN shiftUp IS yes;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
