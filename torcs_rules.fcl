@@ -1,109 +1,212 @@
-FUNCTION_BLOCK torcs_rules
+//---------------------------------------------------------------
+
+FUNCTION_BLOCK acceleracio
+
 VAR_INPUT
+
         curva : REAL;
-        voralEsquerra : REAL;
-        voralDret : REAL;
         velocitat : REAL;
-        rpm : REAL;
+
 END_VAR
 
 VAR_OUTPUT
-        girDret : REAL;
-        girEsquerre : REAL;
+
         acceleracio : REAL;
-        frenar : REAL;
-        shiftUp : REAL;
-        shiftDown : REAL;
+        fre : REAL;
+
 END_VAR
 
 FUZZIFY curva
-        TERM aProp := (7.0,0)(30.0,1);
-        TERM lluny := (7.0,1)(30.0,0);
-END_FUZZIFY
+          TERM recta := (-0.2,0) (0.0,1) (0.2,0);
 
-FUZZIFY voralDret
-        TERM aProp := (0.2, 0)(1,1);
-        TERM mig :=(0.2,0)(0.5,1);
-        TERM lluny :=(0.2,1)(1,0);
-END_FUZZIFY
+          TERM fluixaEsquerra := (0.1,0) (1.0, 1) (2.0,1) (3.0,0);
+          TERM migEsquerra := (2.0, 0) (3.0,1) (4.0,1) (6,0);
+          TERM fortaEsquerra := (5.0, 0) (6.0,1) (20.0,1);
 
-FUZZIFY voralEsquerra
-        TERM aProp := (0.0, 0) (0.2,1);
-        TERM mig := (0.2,1)(0.5,1);
-        TERM lluny := (0.2,0)(1,1);
+          TERM fluixaDreta := (-3.0,0) (-2.0,1) (-1.0, 1) (-0.1, 0);
+          TERM migDreta := (-6.0,0) (-4.0,1) (-3.0,1) (-2.0, 0);
+          TERM fortaDreta := (-20.0,1) (-6.0,1) (-5.0, 0) ;
 END_FUZZIFY
 
 FUZZIFY velocitat
-        TERM lent := (70,1)(90,0);
-        TERM toreto := (80,0)(120,1);
+        TERM lent := (0.0,1)(70.0,1)(90.0,0);
+        TERM mig := (80.0,0)(90.0,1)(130.0,1)(160.0,0);
+        TERM toreto := (160.0,0)(190.0,1)(300.0,1);
 END_FUZZIFY
 
-FUZZIFY rpm
-        TERM baixa := trape 0.0 1500.0 2000.0 3000.0;
-        TERM bona := trape 2500.0 3500.0 4000.0 5000.0;
-        TERM alta := trape 4500.0 5500.0 6000.0 7000.0;
-END_FUZZIFY
 
-DEFUZZIFY girDret
-        TERM no := (0.0, 0);
-        TERM poc := (0.0,0) (0.1,1) (0.2,0);
-        TERM mig := (0.2,0) (0.35, 1) (0.5,0);
-        TERM molt := (0.5, 0) (0.75, 1) (1.0, 0);
-        METHOD : COG;
-        DEFAULT := 0.0;
-END_DEFUZZIFY
-
-DEFUZZIFY shiftUp
-        TERM no := (0.0, 0);
-        TERM yes := (0.0, 0) (0.5, 1) (1.0, 0);
-        METHOD : COG;
-        DEFAULT := 0.0;
-END_DEFUZZIFY
-
-DEFUZZIFY shiftDown
-        TERM no := (0.0, 0);
-        TERM yes := (0.0, 0) (0.5, 1) (1.0, 0);
-        METHOD : COG;
-        DEFAULT := 0.0;
-END_DEFUZZIFY
-
-DEFUZZIFY girEsquerre
-        TERM no := (0.0, 0);
-        TERM poc := (0.0,0) (0.1,1) (0.2,0);
-        TERM mig := (0.2,0) (0.35, 1) (0.5,0);
-        TERM molt := (0.5, 0) (0.75, 1) (1.0, 0);
-        METHOD : COG;
-        DEFAULT := 0.0;
-END_DEFUZZIFY
 
 DEFUZZIFY acceleracio
-        TERM no := (0.0, 0);
-        TERM gas := (0.0, 0) (0.5, 1) (1.0, 0);
+        TERM no := (0.0,1)(0.1,0);
+        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
+        TERM gas := (0.7,0)(0.8,1)(1.0,1);
         METHOD : COG;
         DEFAULT := 0.0;
 END_DEFUZZIFY
 
-DEFUZZIFY frenar
+DEFUZZIFY fre
         TERM no := (0.0, 0);
         TERM freDeMa := (0.0, 0) (0.5, 1) (1.0, 0);
         METHOD : COG;
         DEFAULT := 0.0;
 END_DEFUZZIFY
 
-RULEBLOCK No1
+
+
+RULEBLOCK acceleracio
 
         AND : MIN;
         ACT : MIN;
         ACCU : MAX;
 
-        RULE 1 : IF curva IS aProp AND acceleracio IS gas THEN frenar IS freDeMa;
-        RULE 2 : IF curva IS lluny OR velocitat IS lent THEN acceleracio IS gas;
-        RULE 3 : IF voralDret IS aProp THEN girEsquerre IS molt;
-        RULE 4 : IF voralEsquerra IS aProp THEN girDret IS molt;
-        RULE 5 : IF rpm IS baixa THEN shiftDown IS yes;
-        RULE 6 : IF rpm IS bona THEN shiftUp IS no;
-        RULE 7 : IF rpm IS alta THEN shiftUp IS yes;
+        RULE 1 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND (velocitat IS toreto OR velocitat IS mig) THEN fre IS freDeMa;
+        RULE 2 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND (velocitat IS toreto OR velocitat IS mig) THEN acceleracio IS no;
+        RULE 3 : IF (curva IS migDreta OR curva IS migEsquerra) AND velocitat IS lent THEN acceleracio IS mig;
+        RULE 4 : IF (curva IS migDreta OR curva IS migEsquerra)  AND velocitat IS lent THEN fre IS no;
+        RULE 5 : IF (curva IS fluixaDreta OR curva is fluixaEsquerra) THEN acceleracio IS gas;
+        RULE 6 : IF (curva IS fluixaDreta OR curva is fluixaEsquerra) THEN fre IS no;
 
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK
+
+
+//---------------------------------------------------------------
+
+FUNCTION_BLOCK gir
+
+VAR_INPUT
+        acceleracio : REAL;
+        fre : REAL;
+        distVoralDret : REAL;
+        distVoralEsquerre : REAL;
+        curva : REAL;
+END_VAR
+
+VAR_OUTPUT
+        gir : REAL;
+END_VAR
+
+FUZZIFY acceleracio
+        TERM no := (0.0,1)(0.1,0);
+        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
+        TERM gas := (0.7,0)(0.8,1)(1.0,1);
+END_FUZZIFY
+
+FUZZIFY distVoralDret
+        TERM aProp := (0.4,0)(0.5,1)(1,1);
+        TERM mig := (0.2,0)(0.3,1)(0.5,1)(0.6,0);
+        TERM lluny := (0.0,1)(0.2,1)(0.3,0);
+END_FUZZIFY
+
+FUZZIFY distVoralEsquerre
+        TERM aProp := (0.4,0)(0.5,1)(1,1);
+        TERM mig := (0.2,0)(0.3,1)(0.5,1)(0.6,0);
+        TERM lluny := (0.0,1)(0.2,1)(0.3,0);
+END_FUZZIFY
+
+FUZZIFY fre
+        TERM no := (0.0, 0);
+        TERM freDeMa := (0.1, 0)(0.2,1)(1.0, 0);
+END_FUZZIFY
+
+FUZZIFY curva
+          TERM recta := (-0.2,0) (0.0,1) (0.2,0);
+
+          TERM fluixaEsquerra := (0.1,0) (1.0, 1) (2.0,1) (3.0,0);
+          TERM migEsquerra := (2.0, 0) (3.0,1) (4.0,1) (6,0);
+          TERM fortaEsquerra := (5.0, 0) (6.0,1) (20.0,1);
+
+          TERM fluixaDreta := (-3.0,0) (-2.0,1) (-1.0, 1) (-0.1, 0);
+          TERM migDreta := (-6.0,0) (-4.0,1) (-3.0,1) (-2.0, 0);
+          TERM fortaDreta := (-20.0,1) (-6.0,1) (-5.0, 0) ;
+END_FUZZIFY
+
+
+
+DEFUZZIFY gir
+        TERM no := (0.0, 0);
+
+        TERM suauDreta := (0.0,0) (0.01,1) (0.1,1) (0.11,0);
+        TERM migDreta := (0.11,0) (0.2, 1) (0.25,0);
+        TERM moltDreta := (0.26, 0) (0.30, 1);
+
+        TERM suauEsquerra := (-0.11,0) (-0.1,1) (-0.01,1) (0.0,0);
+        TERM migEsquerra := (-0.25,0) (-0.2,1) (-0.11,0) ;
+        TERM moltEsquerra := (-0.3, 1) (-0.26,0) ;
+
+        METHOD : COG;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+RULEBLOCK gir
+
+        AND : MIN;
+        ACT : MIN;
+        ACCU : MAX;
+
+        RULE 1 : IF distVoralDret IS lluny THEN gir IS suauEsquerra;
+        RULE 2 : IF distVoralEsquerre IS lluny THEN gir IS suauDreta;
+        RULE 3 : IF distVoralDret IS aProp AND acceleracio IS NOT gas THEN gir IS suauDreta;
+        RULE 4 : IF distVoralEsquerre IS aProp AND acceleracio IS NOT gas THEN gir IS suauEsquerra;
+        RULE 5 : IF distVoralDret IS aProp AND acceleracio IS gas THEN gir IS moltEsquerra;
+        RULE 6 : IF distVoralEsquerre IS aProp AND acceleracio IS gas THEN gir IS moltDreta;
+        RULE 7 : IF distVoralDret IS mig THEN gir IS suauEsquerra;
+        RULE 8 : IF distVoralEsquerre IS mig THEN gir IS suauDreta;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
+
+//---------------------------------------------------------------
+
+
+FUNCTION_BLOCK outgear
+
+VAR_INPUT
+        acceleracio : REAL;
+        rpm : REAL;
+END_VAR
+
+VAR_OUTPUT
+        outgear : REAL;
+END_VAR
+
+FUZZIFY acceleracio
+        TERM no := (0.0,1)(0.1,0);
+        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
+        TERM gas := (0.7,0)(0.8,1)(1.0,1);
+END_FUZZIFY
+
+FUZZIFY rpm
+        TERM baixa := (0.0, 1)(2500.0, 1)(3000.0, 0);
+        TERM bona := (3000.0, 0)(3000,1)(4500,1)(7500.0,0);
+        TERM alta := (7500.0,0)(8500.0,1)(12000.0,1);
+END_FUZZIFY
+
+DEFUZZIFY outgear
+        TERM up := 1.0;
+        TERM same := 0.0;
+        TERM down := -1.0;
+        METHOD : COGS;
+        DEFAULT := 0.0;
+END_DEFUZZIFY
+
+
+RULEBLOCK shift
+
+        AND : MIN;
+        ACT : MIN;
+        ACCU : MAX;
+
+        RULE 1 : IF rpm IS alta AND acceleracio IS NOT no THEN outgear IS up;
+        RULE 2 : IF rpm IS bona THEN outgear IS same;
+        RULE 3 : IF rpm IS baixa AND acceleracio IS NOT gas THEN outgear IS down;
+
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
+//---------------------------------------------------------------
