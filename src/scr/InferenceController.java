@@ -70,12 +70,13 @@ public class InferenceController extends Controller {
 
         double distanciaVorals = sensorModel.getTrackPosition();
         double distEsquerra, distDreta;
+
         if (distanciaVorals < 0) {
-            distEsquerra = abs(distanciaVorals);
-            distDreta = 0;
-        } else {
             distDreta = abs(distanciaVorals);
             distEsquerra = 0;
+        } else {
+            distEsquerra = abs(distanciaVorals);
+            distDreta = 0;
         }
 
         steerRules.setVariable("acceleracio", acceleracio);
@@ -99,6 +100,9 @@ public class InferenceController extends Controller {
         Action action = new Action ();
 
         acceleracio = accRules.getVariable("acceleracio").getValue();
+        double accOut = steerRules.getVariable("acceleracioOut").getValue();
+        if (accOut > 0)
+            acceleracio = accOut;
         double gir = steerRules.getVariable("gir").getValue();
         double outgear = gearboxRules.getVariable("outgear").getValue();
         fre = accRules.getVariable("fre").getValue();
@@ -115,7 +119,7 @@ public class InferenceController extends Controller {
         else
             action.gear = currentGear;
 
-        if (_metre_actual % 40 == 0 && _metre_actual != 0){
+        if (_metre_actual % 20 == 0 && _metre_actual != 0){
             System.out.println("------------------------ INPUT ---------------------------");
             System.out.println("METRE: "+ _metre_actual);
             System.out.println("curva"+ _angle_curva);
