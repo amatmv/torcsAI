@@ -25,17 +25,17 @@ public class VoltaReconeixement extends Controller {
         }
 
         double girActual = 0.0;
-        if (sensorModel.getAngleToTrackAxis() < -0.15) { // Negative angles are left angles
-            girActual = -1;
-        } else if (sensorModel.getTrackPosition() > 1/50.0) { // Negative distances means "nearer to left edge"
+        if (sensorModel.getAngleToTrackAxis() < -0.05) { // Negative angles are left angles
+            girActual = -0.5;
+        } else if (sensorModel.getTrackPosition() > 1/4.0) { // Negative distances means "nearer to left edge"
             girActual = -0.25;
-        } else if (sensorModel.getAngleToTrackAxis() > 0.15) { // Positive angles means that we are deviating to the right
-            girActual = 1;
-        } else if (sensorModel.getTrackPosition() < -1/50.0) { // Positive distances means "nearer to right edge"
+        } else if (sensorModel.getAngleToTrackAxis() > 0.05) { // Positive angles means that we are deviating to the right
+            girActual = 0.5;
+        } else if (sensorModel.getTrackPosition() < -1/4.0) { // Positive distances means "nearer to right edge"
             girActual = 0.25;
         }
 
-        String s = "{'Metres': " + sensorModel.getDistanceRaced() + ", 'des del inici': " + sensorModel.getDistanceFromStartLine() + ", 'angle': " + sensorModel.getAngleToTrackAxis() + ", 'gir': " + girActual + "}";
+        String s = "{'raced': " + sensorModel.getDistanceRaced() + ", 'startLine': " + sensorModel.getDistanceFromStartLine()  + ", 'gir':"  + girActual + "}";
 
         _trackInfo.add(s);
 
