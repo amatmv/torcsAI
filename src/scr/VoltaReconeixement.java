@@ -25,6 +25,7 @@ public class VoltaReconeixement extends Controller {
         }
 
         double girActual = 0.0;
+        System.out.println(sensorModel.getAngleToTrackAxis());
         if (sensorModel.getAngleToTrackAxis() < -0.05) { // Negative angles are left angles
             girActual = -0.5;
         } else if (sensorModel.getTrackPosition() > 1/4.0) { // Negative distances means "nearer to left edge"

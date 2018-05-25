@@ -4,7 +4,6 @@ import net.sourceforge.jFuzzyLogic.FIS;
 import net.sourceforge.jFuzzyLogic.FunctionBlock;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,14 +15,21 @@ public class InferenceController extends Controller {
 
     private double _angle_curva = 0.0;
     private int _metre_actual = 0;
+    private FIS _fis;
 
     private Map<Integer, Double> _track_info = new HashMap<Integer, Double>();
 
     public InferenceController(){
         read_file("info_mapa.txt");
+        String fileName = "torcs_rules.fcl";
+
+        _fis = FIS.load(fileName);
+        if( _fis == null ) {
+            System.err.println("Can't load file: '" + fileName + "'");
+        }
     }
 
-    public void read_file(String file_name){
+    private void read_file(String file_name){
         try(BufferedReader br = new BufferedReader(new FileReader(file_name))) {
             String line = br.readLine();
 
@@ -34,24 +40,29 @@ public class InferenceController extends Controller {
                 _track_info.put(metre, angle);
                 line = br.readLine();
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public Action control(SensorModel sensorModel) {
-        String fileName = "torcs_rules.fcl";
 
-        FIS fis = FIS.load(fileName);
-        if( fis == null ) {
-            System.err.println("Can't load file: '" + fileName + "'");
+        try {
+            assert _fis != null;
+        }
+        catch (AssertionError e) {
+            System.err.println(e);
             return null;
         }
 
-        // Bloc de regles de acceleracio
-        FunctionBlock accRules = fis.getFunctionBlock("acceleracio");
+//        for (double sensor : sensorModel.getTrackEdgeSensors()) {
+//            System.out.print(sensor+", ");
+//        }
+//        System.out.println("");
+
+        /*----------- Bloc de regles d'acceleració -------------*/
+
+        FunctionBlock accRules = _fis.getFunctionBlock("acceleracio");
         _metre_actual = (int) sensorModel.getDistanceFromStartLine();
 
         _angle_curva = getCurveAngle(_metre_actual);
@@ -62,14 +73,15 @@ public class InferenceController extends Controller {
 
         accRules.evaluate();
 
-        double acceleracio = accRules.getVariable("acceleracio").getValue();
-        double fre = accRules.getVariable("fre").getValue();
+        /* -----------------------------------------------------*/
 
-        // Bloc de regles de gir
-        FunctionBlock steerRules = fis.getFunctionBlock("gir");
+        /*---------- Bloc de regles de gir ---------------------*/
+        FunctionBlock steerRules = _fis.getFunctionBlock("gir");
 
         double distanciaVorals = sensorModel.getTrackPosition();
+        double anglePista = sensorModel.getAngleToTrackAxis();
         double distEsquerra, distDreta;
+        double angleEsquerre, angleDret;
 
         if (distanciaVorals < 0) {
             distDreta = abs(distanciaVorals);
@@ -79,7 +91,20 @@ public class InferenceController extends Controller {
             distDreta = 0;
         }
 
+        if (anglePista < 0){
+            angleEsquerre = abs(anglePista);
+            angleDret = 0;
+        } else {
+            angleEsquerre = 0;
+            angleDret = abs(anglePista);
+        }
+
+        double acceleracio = accRules.getVariable("acceleracio").getValue();
+        double fre = accRules.getVariable("fre").getValue();
+
         steerRules.setVariable("acceleracio", acceleracio);
+        steerRules.setVariable("angleDret", angleDret);
+        steerRules.setVariable("angleEsquerre", angleEsquerre);
         steerRules.setVariable("distVoralDret", distDreta);
         steerRules.setVariable("distVoralEsquerre", distEsquerra);
         steerRules.setVariable("fre", fre);
@@ -87,15 +112,22 @@ public class InferenceController extends Controller {
 
         steerRules.evaluate();
 
-        //Bloc de regles del canvi de marxa
+        /* -----------------------------------------------------*/
 
-        FunctionBlock gearboxRules = fis.getFunctionBlock("outgear");
+
+        /* ---------------- Bloc de regles del canvi de marxa ------------ */
+
+        FunctionBlock gearboxRules = _fis.getFunctionBlock("outgear");
 
         double rpms = sensorModel.getRPM();
         gearboxRules.setVariable("rpm", rpms);
         gearboxRules.setVariable("acceleracio", acceleracio);
 
         gearboxRules.evaluate();
+
+        /* -----------------------------------------------------*/
+
+        /* --------------------- Codificació de l'acció -------------------*/
 
         Action action = new Action ();
 
@@ -107,7 +139,7 @@ public class InferenceController extends Controller {
         double outgear = gearboxRules.getVariable("outgear").getValue();
         fre = accRules.getVariable("fre").getValue();
 
-        action.steering = -gir;
+        action.steering = gir;
         action.accelerate = acceleracio;
         action.brake = fre;
 
@@ -119,11 +151,13 @@ public class InferenceController extends Controller {
         else
             action.gear = currentGear;
 
+        /* -----------------------------------------------------*/
+
         if (_metre_actual % 20 == 0 && _metre_actual != 0){
             System.out.println("------------------------ INPUT ---------------------------");
             System.out.println("METRE: "+ _metre_actual);
             System.out.println("curva"+ _angle_curva);
-            System.out.println("voralDret: "+distDreta);
+            System.out.println("voralDretq: "+distDreta);
             System.out.println("voralEsquerra"+distEsquerra);
             System.out.println("velocitat"+sensorModel.getSpeed());
             System.out.println("rpm"+rpms);
