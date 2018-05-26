@@ -16,7 +16,7 @@ public class InferenceController extends Controller {
     private Map<Integer, Double> _track_info = new HashMap<Integer, Double>();
 
     protected InferenceController(){
-        read_file("info_mapa_norm.txt");
+        read_file("info_mapa.txt");
         String fileName = "torcs_rules.fcl";
 
         _fis = FIS.load(fileName);
@@ -56,7 +56,7 @@ public class InferenceController extends Controller {
         FunctionBlock accRules = _fis.getFunctionBlock("acceleracio");
         int metreActual = (int) sensorModel.getDistanceFromStartLine();
 
-        double angleCurva = getCurveAngle(metreActual);
+        double angleCurva = _track_info.get(metreActual);
 
         double velocitatActual = sensorModel.getSpeed();
         accRules.setVariable("curva", angleCurva);
@@ -142,16 +142,6 @@ public class InferenceController extends Controller {
 
         return action;
     }
-
-    private double getCurveAngle(int metre_actual) {
-        double angleAcumulat = 0.0;
-        int i = 0;
-        while (i < 60){
-            angleAcumulat += _track_info.get((metre_actual + i++) % _track_info.size());
-        }
-        return angleAcumulat / 12.892601299999997;
-    }
-
 
     public void reset() {
         System.out.println("Restarting the race!");

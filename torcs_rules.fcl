@@ -13,26 +13,21 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY curva
-        TERM suauEsquerra := trape 0.0 0.1 0.1 0.2;
-        TERM migEsquerra := trape 0.2 0.3 0.4 0.5;
-        TERM fortaEsquerra := trape 0.5 0.6 1.0 1.0;
-
-        TERM suauDreta := trape -0.2 -0.1 -0.1 -0.0;
-        TERM migDreta := trape -0.5 -0.4 -0.3 -0.2;
-        TERM fortaDreta := trape -1.0 -1.0 -0.6 -0.5;
+        TERM esquerre := trape 0.5 0.6 1.0 1.0;
+        TERM centre := trape -0.5 -0.0 0.0 0.5;
+        TERM dreta := trape -1.0 -1.0 -0.6 -0.5;
 END_FUZZIFY
 
 FUZZIFY velocitat
         TERM lent := trape 0.0 1.0 50.0 70.0;
-        TERM mig := trape 70.0 90.0 100.0 110.0;
+        TERM mig := trape 70.0 90.0 110.0 120.0;
         TERM toreto := trape 110.0 120.0 300.0 300.0;
 END_FUZZIFY
 
-
 DEFUZZIFY acceleracio
-        TERM no := 0.0;
-        TERM mig := trape 0.1 0.2 0.6 0.7;
-        TERM gas := trape 0.7 0.7 0.8 0.9;
+        TERM no := trian 0.0 0.0 0.0;
+        TERM mig := trape 0.1 0.2 0.4 0.5;
+        TERM gas := trape 0.5 0.6 0.8 0.9;
         METHOD : COG;
         DEFAULT := 0.8;
 END_DEFUZZIFY
@@ -51,8 +46,8 @@ RULEBLOCK acceleracio
 
         RULE 1 : IF velocitat IS toreto THEN acceleracio IS mig;
 
-        RULE 2 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND velocitat IS toreto THEN fre IS freDeMa;
-        RULE 3 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) THEN acceleracio IS mig;
+        RULE 2 : IF (curva IS dreta OR curva IS esquerre) AND velocitat IS toreto THEN fre IS freDeMa;
+        RULE 3 : IF curva IS dreta OR curva IS esquerre THEN acceleracio IS mig;
 
 
 END_RULEBLOCK
@@ -90,9 +85,9 @@ FUZZIFY acceleracio
 END_FUZZIFY
 
 FUZZIFY distVorals
-        TERM dret := trape -0.9 -0.9 -0.8 -0.7;
+        TERM dret := trape -0.9 -0.9 -0.7 -0.6;
         TERM mig := trian -0.6 -0.0 0.6;
-        TERM esquerre := trape 0.7 0.8 0.9 0.9;
+        TERM esquerre := trape 0.6 0.7 0.9 0.9;
 END_FUZZIFY
 
 FUZZIFY fre
@@ -101,15 +96,10 @@ FUZZIFY fre
 END_FUZZIFY
 
 FUZZIFY curva
-        TERM suauEsquerra := trape 0.0 0.1 0.1 0.2;
-        TERM migEsquerra := trape 0.2 0.3 0.4 0.5;
-        TERM fortaEsquerra := trape 0.7 0.8 1.0 1.0;
-
-        TERM suauDreta := trape -0.2 -0.1 -0.1 -0.0;
-        TERM migDreta := trape -0.5 -0.4 -0.3 -0.2;
-        TERM fortaDreta := trape -1.0 -1.0 -0.8 -0.7;
+        TERM esquerre := trape 0.5 0.6 1.0 1.0;
+        TERM centre := trape -0.5 -0.0 0.0 0.5;
+        TERM dreta := trape -1.0 -1.0 -0.6 -0.5;
 END_FUZZIFY
-
 
 DEFUZZIFY acceleracioOut
         TERM no := trian 0.0 0.1 0.1;
@@ -141,8 +131,9 @@ RULEBLOCK gir
 
         RULE 5 : IF distVorals IS mig THEN gir IS no;
 
-        RULE 10 : IF curva is fortaEsquerra THEN gir is esquerre WITH 0.7;
-        RULE 11 : IF curva is fortaDreta THEN gir is dret WITH 0.7;
+        RULE 6 : IF curva IS centre THEN gir is no;
+        RULE 10 : IF curva is esquerre THEN gir is esquerre;
+        RULE 20 : IF curva is dreta THEN gir is dret;
 
 END_RULEBLOCK
 

@@ -25,19 +25,20 @@ public class VoltaReconeixement extends Controller {
         }
 
         double girActual = 0.0;
-        System.out.println(sensorModel.getAngleToTrackAxis());
+
         if (sensorModel.getAngleToTrackAxis() < -0.05) { // Negative angles are left angles
             girActual = -0.5;
-        } else if (sensorModel.getTrackPosition() > 1/4.0) { // Negative distances means "nearer to left edge"
+        } else if (sensorModel.getTrackPosition() > 1/50.0) { // Negative distances means "nearer to left edge"
             girActual = -0.25;
         } else if (sensorModel.getAngleToTrackAxis() > 0.05) { // Positive angles means that we are deviating to the right
             girActual = 0.5;
-        } else if (sensorModel.getTrackPosition() < -1/4.0) { // Positive distances means "nearer to right edge"
+        } else if (sensorModel.getTrackPosition() < -1/50.0) { // Positive distances means "nearer to right edge"
             girActual = 0.25;
         }
 
-        String s = "{'raced': " + sensorModel.getDistanceRaced() + ", 'startLine': " + sensorModel.getDistanceFromStartLine()  + ", 'gir':"  + sensorModel.getAngleToTrackAxis() + "}";
+        int metre_actual = (int) sensorModel.getDistanceFromStartLine();
 
+        String s = "{'metre': " + metre_actual + ", 'angle':" + sensorModel.getAngleToTrackAxis() + "}";
         _trackInfo.add(s);
 
         action.steering = girActual;
@@ -52,7 +53,7 @@ public class VoltaReconeixement extends Controller {
 
     public void shutdown() {
         try {
-            PrintWriter writer = new PrintWriter("out2.txt","UTF-8");
+            PrintWriter writer = new PrintWriter("output_info.txt","UTF-8");
             for (String value: _trackInfo) {
                 writer.println(value);
             }
