@@ -68,7 +68,6 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-        acceleracioOut : REAL;
         gir : REAL;
 END_VAR
 
@@ -100,14 +99,6 @@ FUZZIFY curva
         TERM centre := trape -0.5 -0.0 0.0 0.5;
         TERM dreta := trape -1.0 -1.0 -0.6 -0.5;
 END_FUZZIFY
-
-DEFUZZIFY acceleracioOut
-        TERM no := trian 0.0 0.1 0.1;
-        TERM mig := trape 0.1 0.2 0.6 0.7;
-        TERM gas := trape 0.7 0.7 0.8 0.9;
-        METHOD : COG;
-        DEFAULT := 0.0;
-END_DEFUZZIFY
 
 DEFUZZIFY gir
         TERM esquerre := trape 0.000 0.100 1.000 1.000;

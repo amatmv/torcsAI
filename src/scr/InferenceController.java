@@ -81,10 +81,6 @@ public class InferenceController extends Controller {
 
         steerRules.evaluate();
 
-        double acceleracioGir = steerRules.getVariable("acceleracioOut").getValue();
-        if (acceleracioGir > 0)
-            acceleracio = acceleracioGir;
-
         /* -----------------------------------------------------*/
 
 
