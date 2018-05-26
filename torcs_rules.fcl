@@ -13,36 +13,32 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY curva
-        TERM recta := (-0.1,0) (0.0,1) (0.1,0);
+        TERM suauEsquerra := trape 0.0 0.1 0.1 0.2;
+        TERM migEsquerra := trape 0.2 0.3 0.4 0.5;
+        TERM fortaEsquerra := trape 0.5 0.6 1.0 1.0;
 
-        TERM fluixaEsquerra := (0.5,0) (2.0, 1) (3,0);
-        TERM migEsquerra := (2.5, 0) (3.0,1) (5.0,1) (6.0,0);
-        TERM fortaEsquerra := (6, 0) (8.0,1) (60.0,1);
-
-        TERM fluixaDreta := (-3.0,0)(-2.0, 1) (-0.5, 0);
-        TERM migDreta := (-6.0,0) (-5.0,1) (-3.0,1) (-2.5, 0);
-        TERM fortaDreta := (-60.0,1) (-8.0,1) (-6, 0) ;
+        TERM suauDreta := trape -0.2 -0.1 -0.1 -0.0;
+        TERM migDreta := trape -0.5 -0.4 -0.3 -0.2;
+        TERM fortaDreta := trape -1.0 -1.0 -0.6 -0.5;
 END_FUZZIFY
 
 FUZZIFY velocitat
-        TERM lent := (0.0,1)(70.0,1)(90.0,0);
-        TERM mig := (80.0,0)(90.0,1)(130.0,1)(160.0,0);
-        TERM toreto := (160.0,0)(170,1)(300.0,1);
+        TERM lent := trape 0.0 1.0 50.0 70.0;
+        TERM mig := trape 70.0 90.0 100.0 110.0;
+        TERM toreto := trape 110.0 120.0 300.0 300.0;
 END_FUZZIFY
 
 
-
 DEFUZZIFY acceleracio
-        TERM no := (0.0,1)(0.1,0);
-        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
-        TERM gas := (0.7,0)(0.7,1)(0.8,1)(0.9,0);
+        TERM no := 0.0;
+        TERM mig := trape 0.1 0.2 0.6 0.7;
+        TERM gas := trape 0.7 0.7 0.8 0.9;
         METHOD : COG;
         DEFAULT := 0.8;
 END_DEFUZZIFY
 
 DEFUZZIFY fre
-        TERM no := (0.0, 0);
-        TERM freDeMa := (0.1, 0) (0.5, 1) (1.0, 1);
+        TERM freDeMa := trape 0.1 0.1 1.0 1.0;
         METHOD : COG;
         DEFAULT := 0.0;
 END_DEFUZZIFY
@@ -53,17 +49,10 @@ RULEBLOCK acceleracio
         ACT : MIN;
         ACCU : MAX;
 
-        RULE 1 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND velocitat IS toreto THEN fre IS freDeMa;
+        RULE 1 : IF velocitat IS toreto THEN acceleracio IS mig;
 
-        RULE 2 : IF (curva IS migDreta OR curva is migEsquerra) THEN acceleracio IS gas;
-
-        RULE 3 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND velocitat IS lent THEN acceleracio IS mig;
-
-        RULE 4 : IF (curva IS migDreta OR curva IS migEsquerra)  AND velocitat IS lent THEN fre IS no;
-
-        RULE 5 : IF (curva IS fluixaDreta OR curva is fluixaEsquerra) THEN acceleracio IS gas;
-
-        RULE 6 : IF (curva IS fluixaDreta OR curva is fluixaEsquerra) THEN fre IS no;
+        RULE 2 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) AND velocitat IS toreto THEN fre IS freDeMa;
+        RULE 3 : IF (curva IS fortaDreta OR curva IS fortaEsquerra) THEN acceleracio IS mig;
 
 
 END_RULEBLOCK
@@ -78,10 +67,8 @@ FUNCTION_BLOCK gir
 VAR_INPUT
         acceleracio : REAL;
         fre : REAL;
-        distVoralDret : REAL;
-        distVoralEsquerre : REAL;
-        angleDret : REAL;
-        angleEsquerre : REAL;
+        distVorals : REAL;
+        angleCentre : REAL;
         curva : REAL;
 END_VAR
 
@@ -90,36 +77,22 @@ VAR_OUTPUT
         gir : REAL;
 END_VAR
 
-FUZZIFY angleDret
-        TERM mig := (0.01, 0)(0.011, 1)(0.049, 1)(0.05, 0);
-        TERM pronunciat := (0.049, 0)(0.05, 1)(1,1);
-END_FUZZIFY
-
-FUZZIFY angleEsquerre
-        TERM mig := (-0.05, 0)(-0.049, 1)(-0.011, 1)(-0.01, 0);
-        TERM pronunciat := (-1.0,1)(-0.05, 1)(-0.049, 0);
+FUZZIFY angleCentre
+        TERM esquerre := trape -3.150 -3.150 -0.900 -0.000;
+        TERM centre := trape -0.900 -0.000 0.000 0.900;
+        TERM dret := trape 0.000 0.900 3.150 3.150;
 END_FUZZIFY
 
 FUZZIFY acceleracio
-        TERM no := (0.0,1)(0.1,0);
-        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
-        TERM gas := (0.7,0)(0.7,1)(0.8,1)(0.9,0);
+        TERM no := 0.0;
+        TERM mig := trape 0.1 0.2 0.6 0.7;
+        TERM gas := trape 0.7 0.7 0.8 0.9;
 END_FUZZIFY
 
-FUZZIFY distVoralDret
-        TERM excessiva := (0.89, 0)(0.9,1);
-        TERM aProp := (0.5,0)(0.55,1)(0.8,1)(0.9,0);
-        TERM mig := (0.5,0)(0.51,1)(0.7,1)(0.74,0);
-        TERM lluny := (0.0,0) (0.0,1)(0.2,1)(0.3,0);
-        TERM no := (0.0, 1)(0.001, 0);
-END_FUZZIFY
-
-FUZZIFY distVoralEsquerre
-        TERM excessiva := (0.89, 0)(0.9,1);
-        TERM aProp := (0.5,0)(0.55,1)(0.8,1)(0.9,0);
-        TERM mig := (0.5,0)(0.51,1)(0.7,1)(0.74,0);
-        TERM lluny := (0.0, 0)(0.1,1)(0.2,1)(0.3,0);
-        TERM no := (0.0, 1)(0.001, 0);
+FUZZIFY distVorals
+        TERM dret := trape -0.9 -0.9 -0.8 -0.7;
+        TERM mig := trian -0.6 -0.0 0.6;
+        TERM esquerre := trape 0.7 0.8 0.9 0.9;
 END_FUZZIFY
 
 FUZZIFY fre
@@ -128,35 +101,28 @@ FUZZIFY fre
 END_FUZZIFY
 
 FUZZIFY curva
-        TERM recta := (-0.76,0) (-0.75,1) (0.0,1) (0.75,1) (0.76, 0);
+        TERM suauEsquerra := trape 0.0 0.1 0.1 0.2;
+        TERM migEsquerra := trape 0.2 0.3 0.4 0.5;
+        TERM fortaEsquerra := trape 0.7 0.8 1.0 1.0;
 
-        TERM fluixaEsquerra := (0.75,0) (0.76, 1) (1.55, 1) (1.75, 0);
-        TERM migEsquerra := (1.75, 0) (2.0,1) (10.0,1) (11.0,0);
-        TERM fortaEsquerra := (11, 0) (13.0,1) (60.0,1);
-
-        TERM fluixaDreta := (-1.75, 0)(-1.55, 0) (-0.76, 1) (-0.75, 0);
-        TERM migDreta := (-11.0,0) (-10.0,1) (-2.0,1) (-1.75, 0);
-        TERM fortaDreta := (-60.0,1) (-13.0,1) (-11, 0) ;
+        TERM suauDreta := trape -0.2 -0.1 -0.1 -0.0;
+        TERM migDreta := trape -0.5 -0.4 -0.3 -0.2;
+        TERM fortaDreta := trape -1.0 -1.0 -0.8 -0.7;
 END_FUZZIFY
 
+
 DEFUZZIFY acceleracioOut
-        TERM no := (0.0,1)(0.1,0);
-        TERM mig := (0.1,0)(0.2,1)(0.6,1)(0.7,0);
-        TERM gas := (0.7,0)(0.7,1)(0.8,1)(0.9,0);
+        TERM no := trian 0.0 0.1 0.1;
+        TERM mig := trape 0.1 0.2 0.6 0.7;
+        TERM gas := trape 0.7 0.7 0.8 0.9;
         METHOD : COG;
         DEFAULT := 0.0;
 END_DEFUZZIFY
 
 DEFUZZIFY gir
-        TERM no := (0.0, 0);
-
-        TERM suauEsquerra := (0.0,0) (0.005,1) (0.06,1) (0.1, 0);
-        TERM migEsquerra := (0.1,0) (0.15, 1) (0.2, 1)(0.25, 0);
-        TERM moltEsquerra := (0.4, 0) (0.45, 1) (0.7, 1) (0.8,0);
-
-        TERM suauDreta := (-0.1, 0) (-0.06, 1) (-0.005,1) (0.0,0);
-        TERM migDreta := (-0.25,0) (-0.2, 1)(-0.15,1) (-0.1,0) ;
-        TERM moltDreta := (-0.8,0) (-0.7, 1)(-0.6, 1) (-0.5,0) ;
+        TERM esquerre := trape 0.000 0.100 1.000 1.000;
+        TERM no := trian -0.100 0.000 0.100;
+        TERM dret := trape -1.000 -1.000 -0.100 0.000;
 
         METHOD : COG;
         DEFAULT := 0.0;
@@ -168,27 +134,15 @@ RULEBLOCK gir
         ACT : MIN;
         ACCU : MAX;
 
-        RULE 2 : IF (curva IS fluixaDreta OR distVoralEsquerre IS NOT lluny) AND distVoralDret IS lluny THEN gir IS suauDreta;
-        RULE 3 : IF (curva IS fluixaEsquerra OR distVoralDret IS NOT lluny) AND distVoralEsquerre IS lluny THEN gir IS suauEsquerra;
+        RULE 1 : IF distVorals IS esquerre THEN gir is dret;
+        RULE 2 : IF distVorals IS dret THEN gir is esquerre;
+        RULE 3 : IF angleCentre IS esquerre THEN gir is dret;
+        RULE 4 : IF angleCentre IS dret THEN gir is esquerre;
 
-        RULE 6 : IF (curva IS migDreta OR distVoralEsquerre IS aProp OR distVoralEsquerre IS mig) AND (distVoralDret IS lluny OR distVoralDret IS no) THEN gir IS migDreta;
-        RULE 7 : IF (curva IS migEsquerra OR distVoralDret IS aProp OR distVoralDret IS mig) AND (distVoralEsquerre IS lluny OR distVoralEsquerre IS no) THEN gir IS migEsquerra;
+        RULE 5 : IF distVorals IS mig THEN gir IS no;
 
-        RULE 10 : IF curva IS fortaDreta OR (distVoralEsquerre IS aProp AND curva IS NOT fluixaDreta) THEN gir IS moltDreta;
-        RULE 11 : IF distVoralEsquerre IS mig THEN gir IS migDreta;
-
-        RULE 18 : IF (curva IS fortaEsquerra OR curva IS fortaDreta) THEN acceleracioOut IS mig;
-
-
-        //RULE 8 : IF curva IS fortaEsquerra AND distVoralEsquerre IS NOT aProp THEN gir IS moltEsquerra;
-        //RULE 9 : IF curva IS fortaEsquerra AND distVoralEsquerre IS mig THEN gir is migDreta;
-        //RULE 10 : IF angleEsquerre IS pronunciat AND distVoralDret IS aProp THEN gir is fortDret;
-        //RULE 11 : IF distVoralEsquerre IS aProp THEN gir is fortDret;
-        //RULE 11 : IF distVoralDret IS NOT lluny AND acceleracio IS NOT gas THEN gir is migEsquerra;
-
-
-
-
+        RULE 10 : IF curva is fortaEsquerra THEN gir is esquerre WITH 0.7;
+        RULE 11 : IF curva is fortaDreta THEN gir is dret WITH 0.7;
 
 END_RULEBLOCK
 
@@ -239,7 +193,6 @@ RULEBLOCK shift
         RULE 1 : IF rpm IS alta AND acceleracio IS NOT no THEN outgear IS up;
         RULE 2 : IF rpm IS bona THEN outgear IS same;
         RULE 3 : IF rpm IS baixa AND acceleracio IS NOT gas THEN outgear IS down;
-
 
 END_RULEBLOCK
 

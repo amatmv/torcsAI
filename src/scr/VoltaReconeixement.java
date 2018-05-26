@@ -36,7 +36,7 @@ public class VoltaReconeixement extends Controller {
             girActual = 0.25;
         }
 
-        String s = "{'raced': " + sensorModel.getDistanceRaced() + ", 'startLine': " + sensorModel.getDistanceFromStartLine()  + ", 'gir':"  + girActual + "}";
+        String s = "{'raced': " + sensorModel.getDistanceRaced() + ", 'startLine': " + sensorModel.getDistanceFromStartLine()  + ", 'gir':"  + sensorModel.getAngleToTrackAxis() + "}";
 
         _trackInfo.add(s);
 
