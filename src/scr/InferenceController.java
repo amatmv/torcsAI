@@ -143,6 +143,16 @@ public class InferenceController extends Controller {
         return action;
     }
 
+    private double getCurveAngle(int metre_actual) {
+        double angleAcumulat = 0.0;
+        int i = 0;
+        while (i < 60){
+            angleAcumulat += _track_info.get((metre_actual + i++) % _track_info.size());
+        }
+        return angleAcumulat / 12.892601299999997;
+    }
+
+
     public void reset() {
         System.out.println("Restarting the race!");
     }
