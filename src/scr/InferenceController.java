@@ -75,7 +75,6 @@ public class InferenceController extends Controller {
         steerRules.setVariable("acceleracio", acceleracio);
         steerRules.setVariable("angleCentre", sensorModel.getAngleToTrackAxis());
         steerRules.setVariable("distVorals", sensorModel.getTrackPosition());
-        steerRules.setVariable("fre", accRules.getVariable("fre").getValue());
         steerRules.setVariable("curva", angleCurva);
 
 

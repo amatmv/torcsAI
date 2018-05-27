@@ -57,11 +57,10 @@ END_FUNCTION_BLOCK
 
 //---------------------------------------------------------------
 
-FUNCTION_BLOCK gir
+FUNCTION_BLOCK direccio
 
 VAR_INPUT
         acceleracio : REAL;
-        fre : REAL;
         distVorals : REAL;
         angleCentre : REAL;
         curva : REAL;
@@ -89,11 +88,6 @@ FUZZIFY distVorals
         TERM esquerre := trape 0.6 0.7 0.9 0.9;
 END_FUZZIFY
 
-FUZZIFY fre
-        TERM no := (0.0, 0);
-        TERM freDeMa := (0.1, 0) (0.5, 1) (1.0, 1);
-END_FUZZIFY
-
 FUZZIFY curva
         TERM esquerre := trape 0.5 0.6 1.0 1.0;
         TERM centre := trape -0.5 -0.0 0.0 0.5;
@@ -104,12 +98,11 @@ DEFUZZIFY gir
         TERM esquerre := trape 0.000 0.100 1.000 1.000;
         TERM no := trian -0.100 0.000 0.100;
         TERM dret := trape -1.000 -1.000 -0.100 0.000;
-
         METHOD : COG;
         DEFAULT := 0.0;
 END_DEFUZZIFY
 
-RULEBLOCK gir
+RULEBLOCK direccio
 
         AND : MIN;
         ACT : MIN;
@@ -134,7 +127,7 @@ END_FUNCTION_BLOCK
 //---------------------------------------------------------------
 
 
-FUNCTION_BLOCK outgear
+FUNCTION_BLOCK marxes
 
 VAR_INPUT
         acceleracio : REAL;
@@ -142,7 +135,7 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-        outgear : REAL;
+        marxa : REAL;
 END_VAR
 
 FUZZIFY acceleracio
@@ -157,7 +150,7 @@ FUZZIFY rpm
         TERM alta := (7500.0,0)(8500.0,1)(12000.0,1);
 END_FUZZIFY
 
-DEFUZZIFY outgear
+DEFUZZIFY marxa
         TERM up := 1.0;
         TERM same := 0.0;
         TERM down := -1.0;
@@ -172,9 +165,9 @@ RULEBLOCK shift
         ACT : MIN;
         ACCU : MAX;
 
-        RULE 1 : IF rpm IS alta AND acceleracio IS NOT no THEN outgear IS up;
-        RULE 2 : IF rpm IS bona THEN outgear IS same;
-        RULE 3 : IF rpm IS baixa AND acceleracio IS NOT gas THEN outgear IS down;
+        RULE 1 : IF rpm IS alta AND acceleracio IS NOT no THEN marxa IS up;
+        RULE 2 : IF rpm IS bona THEN marxa IS same;
+        RULE 3 : IF rpm IS baixa AND acceleracio IS NOT gas THEN marxa IS down;
 
 END_RULEBLOCK
 
