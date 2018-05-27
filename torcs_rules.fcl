@@ -60,7 +60,6 @@ END_FUNCTION_BLOCK
 FUNCTION_BLOCK direccio
 
 VAR_INPUT
-        acceleracio : REAL;
         distVorals : REAL;
         angleCentre : REAL;
         curva : REAL;
@@ -76,16 +75,12 @@ FUZZIFY angleCentre
         TERM dret := trape 0.000 0.900 3.150 3.150;
 END_FUZZIFY
 
-FUZZIFY acceleracio
-        TERM no := 0.0;
-        TERM mig := trape 0.1 0.2 0.6 0.7;
-        TERM gas := trape 0.7 0.7 0.8 0.9;
-END_FUZZIFY
-
 FUZZIFY distVorals
+        TERM foraDreta := trape -2.0 -2.0 -1.2 -1.0;
         TERM dret := trape -0.9 -0.9 -0.7 -0.6;
         TERM mig := trian -0.6 -0.0 0.6;
         TERM esquerre := trape 0.6 0.7 0.9 0.9;
+        TERM foraEsquerra := trape 1.0 1.2 2.0 2.0;
 END_FUZZIFY
 
 FUZZIFY curva
@@ -116,8 +111,12 @@ RULEBLOCK direccio
         RULE 5 : IF distVorals IS mig THEN gir IS no;
 
         RULE 6 : IF curva IS centre THEN gir is no;
-        RULE 10 : IF curva is esquerre THEN gir is esquerre;
-        RULE 20 : IF curva is dreta THEN gir is dret;
+
+        RULE 7 : IF distVorals IS foraDreta THEN gir is esquerre WITH 0.2;
+        RULE 8 : IF distVorals IS foraEsquerra THEN gir is dret WITH 0.2;
+
+        RULE 9 : IF curva is esquerre THEN gir is esquerre;
+        RULE 10 : IF curva is dreta THEN gir is dret;
 
 END_RULEBLOCK
 

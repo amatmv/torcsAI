@@ -72,7 +72,6 @@ public class InferenceController extends Controller {
 
         FunctionBlock steerRules = _fis.getFunctionBlock("direccio");
 
-        steerRules.setVariable("acceleracio", acceleracio);
         steerRules.setVariable("angleCentre", sensorModel.getAngleToTrackAxis());
         steerRules.setVariable("distVorals", sensorModel.getTrackPosition());
         steerRules.setVariable("curva", angleCurva);
