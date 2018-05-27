@@ -70,11 +70,11 @@ public class InferenceController extends Controller {
 
         /*---------- Bloc de regles de gir ---------------------*/
 
-        FunctionBlock steerRules = _fis.getFunctionBlock("gir");
-        double vorals = sensorModel.getTrackPosition();
+        FunctionBlock steerRules = _fis.getFunctionBlock("direccio");
+
         steerRules.setVariable("acceleracio", acceleracio);
         steerRules.setVariable("angleCentre", sensorModel.getAngleToTrackAxis());
-        steerRules.setVariable("distVorals", vorals);
+        steerRules.setVariable("distVorals", sensorModel.getTrackPosition());
         steerRules.setVariable("fre", accRules.getVariable("fre").getValue());
         steerRules.setVariable("curva", angleCurva);
 
@@ -86,7 +86,7 @@ public class InferenceController extends Controller {
 
         /* ---------------- Bloc de regles del canvi de marxa ------------ */
 
-        FunctionBlock gearboxRules = _fis.getFunctionBlock("outgear");
+        FunctionBlock gearboxRules = _fis.getFunctionBlock("marxes");
 
         double rpms = sensorModel.getRPM();
         gearboxRules.setVariable("rpm", rpms);
@@ -102,7 +102,7 @@ public class InferenceController extends Controller {
 
         double fre = accRules.getVariable("fre").getValue();
         double gir = steerRules.getVariable("gir").getValue();
-        double outgear = gearboxRules.getVariable("outgear").getValue();
+        double outgear = gearboxRules.getVariable("marxa").getValue();
 
         action.steering = gir;
         action.accelerate = acceleracio;
@@ -118,36 +118,8 @@ public class InferenceController extends Controller {
 
         /* -----------------------------------------------------*/
 
-        if (metreActual % 15 == 0 && metreActual != 0){
-            System.out.println("------------------------ INPUT ---------------------------");
-            System.out.println("METRE: "+ metreActual);
-            System.out.println("curva"+ angleCurva);
-            System.out.println("vorals: "+vorals);
-            System.out.println("velocitat"+sensorModel.getSpeed());
-            System.out.println("angle"+sensorModel.getAngleToTrackAxis());
-            System.out.println("-----------------------------------------------------------------");
-            System.out.println("");
-            System.out.println("");
-            System.out.println("-------------------------- OUTPUT ---------------------------");
-            System.out.println("Acceleracio "+acceleracio);
-            System.out.println("gir "+gir);
-            System.out.println("Outgear "+outgear);
-            System.out.println("fre "+fre);
-            System.out.println("-----------------------------------------------------------------");
-        }
-
         return action;
     }
-
-    private double getCurveAngle(int metre_actual) {
-        double angleAcumulat = 0.0;
-        int i = 0;
-        while (i < 60){
-            angleAcumulat += _track_info.get((metre_actual + i++) % _track_info.size());
-        }
-        return angleAcumulat / 12.892601299999997;
-    }
-
 
     public void reset() {
         System.out.println("Restarting the race!");
